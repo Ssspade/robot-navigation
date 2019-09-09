@@ -46,15 +46,15 @@ def mouseCallback(event, x, y, flags, null):
 #计算范数，两点之间的距离
         std = np.array([2, 4])
         u = np.array([heading, distance])
-        predict(particles, u, std, dt=1.)   #采样
-        zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))#地标各机器人的距离
+        predict(particles, u, std, dt=1.)  
+        zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))#地标隔机器人的距离
         #sensor_std_err = 5
         update(particles, weights, z=zs, R=50, landmarks=landmarks)#更新粒子权重
 
         indexes = systematic_resample(weights)#重新采样后的位置
         resample_from_index(particles, weights, indexes)
 
-        #输出粒子位置
+        #*****************输出粒子位置********************88
         particle_pos(particles, weights, po)
         #po = np.array(po)
 
@@ -72,7 +72,7 @@ WINDOW_NAME = "Particle Filter"
 sensor_std_err = 5
 
 
-def create_uniform_particles(x_range, y_range, N):#初始化粒子
+def create_uniform_particles(x_range, y_range, N):#初始化服从正太分布的粒子
     particles = np.empty((N, 2))                    #返回N个2为数组，即随机粒子坐标
     particles[:, 0] = uniform(x_range[0], x_range[1], size=N)   #x为生x_range[0]~x_range[1]的随机数
     particles[:, 1] = uniform(y_range[0], y_range[1], size=N)
@@ -94,7 +94,7 @@ def update(particles, weights, z, R, landmarks):
         distance = np.power((particles[:, 0] - landmark[0]) ** 2 + (particles[:, 1] - landmark[1]) ** 2, 0.5)
         #粒子隔地标的距离
         weights *= scipy.stats.norm(distance, R).pdf(z[i])  #pdf为概率密度，R=50；
-        # 均值为distance，方差为50，分布到机器人各坐标的概率； 在位置xt处获得观测量zt的概率p(zt|xt)
+        # 正态分布，均值为distance，方差为50，分布到机器人各坐标的概率； 在位置xt处获得观测量zt的概率p(zt|xt)
 
     weights += 1.e-300  # avoid round-off to zero
     weights /= sum(weights)     #归一化
@@ -131,12 +131,14 @@ def resample_from_index(particles, weights, indexes):   #根据索引重采样
     particles[:] = particles[indexes]
     weights[:] = weights[indexes]
     weights /= np.sum(weights)
-
+#**********************修改部分**************
 def particle_pos(particles, weights, po):
+    global robot_pos
     mo, var = estimate(particles, weights)
     po[0,0] = mo[0]
     po[0,1] = mo[1]
-
+    robot_pos = np.vstack((robot_pos, mo))
+#*******************************************
 x_range = np.array([0, 800])
 y_range = np.array([0, 600])
 
@@ -167,6 +169,7 @@ while (1):
     cv2.imshow(WINDOW_NAME, img)
     img = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
     drawLines(img, trajectory, 0, 255, 0)
+
     drawCross(img, center, r=255, g=0, b=0)
 
     # landmarks
@@ -176,13 +179,13 @@ while (1):
     # draw_particles:
     for particle in particles:
         cv2.circle(img, tuple((int(particle[0]), int(particle[1]))), 1, (255, 255, 255), -1)
-
+#*******************修改部分******************
     # pos
     for p in po:
         cv2.circle(img, tuple(p), 5, (255, 0, 255),-1)
+    drawLines(img, robot_pos, 255, 0, 255)
     #po = np.array(po)
-    #drawCross(img, po, r=255, g=255, b=0)
-
+#************************************************
     if cv2.waitKey(DELAY_MSEC) & 0xFF == 27:
         break
 
