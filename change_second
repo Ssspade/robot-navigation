@@ -46,11 +46,10 @@ def mouseCallback(event, x, y, flags, null):
         u = np.array([heading, distance])
         predict(particles, u, std, dt=1.)
         zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))
-        #*************修改部分*************************
+        #*************修改部分*************************8
         update(particles, weights, z=zs, landmarks=landmarks)
-        if neff(weights < N / 2):
-            indexes = systematic_resample(weights)
-            resample_from_index(particles, weights, indexes)
+        indexes = systematic_resample(weights)
+        resample_from_index(particles, weights, indexes)
 
     previous_x = x
     previous_y = y
@@ -85,9 +84,9 @@ def update(particles, weights, z,landmarks):
     for i, landmark in enumerate(landmarks):
         distance = np.power((particles[:, 0] - landmark[0]) ** 2 + (particles[:, 1] - landmark[1]) ** 2, 0.5)
         #****************修改部分：泊松分布计算weight*****************
-        distance = np.trunc(distance)
-        weights *=scipy.stats.poisson.pmf(distance, z[i])
-#*********************************************************************************
+        z[i] = np.trunc(z[i])
+        weights *=scipy.stats.poisson.pmf(z[i], distance)
+
     weights += 1.e-300  # avoid round-off to zero
     weights /= sum(weights)
 
