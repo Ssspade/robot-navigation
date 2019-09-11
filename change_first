@@ -54,8 +54,7 @@ def mouseCallback(event, x, y, flags, null):
         update(particles, weights, z=zs, R=50, landmarks=landmarks)
 
         indexes = systematic_resample(weights)
-        if neff(weights< N/2):
-            resample_from_index(particles, weights, indexes)
+        resample_from_index(particles, weights, indexes)
 
     previous_x = x
     previous_y = y
@@ -163,8 +162,10 @@ weights = np.array([1.0] * N)
 img = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
 cv2.namedWindow(WINDOW_NAME)
 cv2.setMouseCallback(WINDOW_NAME, mouseCallback)
+#***********************************
 timer = threading.Timer(3, marks_move)
 timer.start()
+#***************************************
 center = np.array([[-10, -10]])
 
 trajectory = np.zeros(shape=(0, 2))
