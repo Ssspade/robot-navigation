@@ -163,7 +163,7 @@ weights = np.array([1.0] * N)
 img = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
 cv2.namedWindow(WINDOW_NAME)
 cv2.setMouseCallback(WINDOW_NAME, mouseCallback)
-timer = threading.Timer(5, marks_move)
+timer = threading.Timer(3, marks_move)
 timer.start()
 center = np.array([[-10, -10]])
 
