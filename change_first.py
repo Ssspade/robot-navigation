@@ -6,8 +6,7 @@ import threading
 np.set_printoptions(threshold=3)
 np.set_printoptions(suppress=True)
 import cv2
-import random
-import time
+
 
 
 def drawLines(img, points, r, g, b):
